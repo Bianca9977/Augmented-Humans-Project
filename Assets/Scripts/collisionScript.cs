@@ -13,7 +13,7 @@ public class collisionScript : MonoBehaviour
         message.address = "/hitWall";
     }
 
-        void OnCollisionEnter(Collision obstacleCollision) //information about collision, obstackeCollisio is the name of that information
+    void OnCollisionEnter(Collision obstacleCollision) //information about collision, obstackeCollisio is the name of that information
     {
 
         if (obstacleCollision.collider.tag == "Obstacle") //information.collider (which collider we hit).tag

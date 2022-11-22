@@ -1,16 +1,22 @@
 import oscP5.*;
 import netP5.*;
+// to use serial communication, you must import the serial library
+import processing.serial.*;
+// create a serial port variable
 
+Serial myPort;
 OscP5 oscP5;
 NetAddress myRemoteLocation;
 OscMessage oscMessage;
 
-int hitWall;
+int hitWall = 0;
 
 
 void setup(){
  size(300,300);
  frameRate(60);
+ 
+  myPort = new Serial(this, Serial.list()[0], 115200);
  
  oscP5 = new OscP5(this, 57131);
  myRemoteLocation = new NetAddress("127.0.0.1", 57130);
@@ -21,7 +27,7 @@ void setup(){
 }
 
 void draw(){
-  background(0);  
+  background(0); 
 
 }
 
@@ -35,14 +41,13 @@ void sendValue(OscMessage message) {
   oscMessage = new OscMessage("/Button");
 }
 
-
-//get number of patterns set from Unity
 void oscEvent(OscMessage theOscMessage) {
   if (theOscMessage.checkAddrPattern("/hitWall") == true) {      
     hitWall = theOscMessage.get(0).intValue(); 
 
     if (hitWall == 1) { 
-      println("hit wall true");
+       myPort.write('1');         //send a 1
+       println("hit wall"); 
     }
     
     return;
