@@ -6,7 +6,7 @@ public class PlayerMovement : MonoBehaviour
 {
     public Rigidbody controller;
 
-    public UnityEvent m_MyEvent;
+    public UnityEvent event_TurnLeft, event_TurnRight;
 
     public float speed = 12f;
 
@@ -17,10 +17,14 @@ public class PlayerMovement : MonoBehaviour
     {
         controller = GetComponent<Rigidbody>(); //controller equals the rigidbody on the player
 
-        if (m_MyEvent == null)
-            m_MyEvent = new UnityEvent();
+        if (event_TurnLeft == null)
+            event_TurnLeft = new UnityEvent();
+        if (event_TurnRight == null)
+            event_TurnRight = new UnityEvent();
 
-        m_MyEvent.AddListener(TurnLeft);
+        event_TurnLeft.AddListener(TurnLeft);
+
+        event_TurnRight.AddListener(TurnRight);
     }
 
     // Update is called once per frame
@@ -41,27 +45,32 @@ public class PlayerMovement : MonoBehaviour
 
         headingAngle = Quaternion.LookRotation(forward).eulerAngles.y;
 
-       /* if ((headingAngle > 90f) && (headingAngle <= 180f))
-        {
-            headingAngle -= 180f;
-        }
-        else if ((headingAngle > 180f) && (headingAngle <= 270f))
-        {
-            headingAngle -= 270f;
-        }
-        else if ((headingAngle > 270f) && (headingAngle <= 360f))
-        {
-            headingAngle -= 360f;
-        }*/
+        /* if ((headingAngle > 90f) && (headingAngle <= 180f))
+         {
+             headingAngle -= 180f;
+         }
+         else if ((headingAngle > 180f) && (headingAngle <= 270f))
+         {
+             headingAngle -= 270f;
+         }
+         else if ((headingAngle > 270f) && (headingAngle <= 360f))
+         {
+             headingAngle -= 360f;
+         }*/
 
         //headingAngle = Mathf.Abs(headingAngle);
 
         //Debug.Log("character rotation " + headingAngle);
 
 
-        if (m_MyEvent != null)
+        if (event_TurnLeft != null)
         {
-            m_MyEvent.Invoke();
+            event_TurnLeft.Invoke();
+
+        }
+        if (event_TurnRight != null)
+        {
+            event_TurnRight.Invoke();
         }
 
     }
@@ -78,6 +87,10 @@ public class PlayerMovement : MonoBehaviour
         if (other.tag == "TurnLeft")
         {
             Debug.Log("turn left " + initialAngle);
+            triggerTurn = true;
+        } else if (other.tag == "TurnRight")
+        {
+            Debug.Log("turn right " + initialAngle);
             triggerTurn = true;
         }
     }
@@ -103,4 +116,25 @@ public class PlayerMovement : MonoBehaviour
 
     }
 
-}
+    void TurnRight()
+    {
+
+        float targetAngle = initialAngle + 90;
+
+        if (targetAngle > 360)
+        {
+            targetAngle = targetAngle - 360;
+        }
+
+        float diff = targetAngle - headingAngle;
+
+        if ((diff > 0) && (diff < 15) && (triggerTurn == true))
+        {
+            Debug.Log("Turned Right " + " " + initialAngle + " " + targetAngle + " " + headingAngle + " " + (headingAngle - targetAngle));
+            triggerTurn = false;
+        }
+
+
+    }
+
+    }
