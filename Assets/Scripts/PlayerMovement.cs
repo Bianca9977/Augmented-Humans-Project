@@ -11,7 +11,10 @@ public class PlayerMovement : MonoBehaviour
     public float speed = 12f;
 
     private float headingAngle, initialAngle = 0f;
-    private bool triggerTurn = false;
+    private bool triggerTurnLeft = false, triggerTurnRight = false;
+
+    public OSC osc;
+    OscMessage messageDirection = new OscMessage(); //value 2 - turn left; value 3 - turn right; value 4 - go straight
 
     void Start()
     {
@@ -25,6 +28,10 @@ public class PlayerMovement : MonoBehaviour
         event_TurnLeft.AddListener(TurnLeft);
 
         event_TurnRight.AddListener(TurnRight);
+
+        messageDirection.address = "/Direction";
+
+        InvokeRepeating("checkDirection", 1.0f, 2.0f);
     }
 
     // Update is called once per frame
@@ -33,8 +40,8 @@ public class PlayerMovement : MonoBehaviour
         float x = Input.GetAxis("Horizontal"); //input
         float z = Input.GetAxis("Vertical");
 
-        Vector3 move = (transform.right * x + transform.forward * z)* speed * Time.deltaTime; // transform.right = takes the direction player is facing and goes to the right // tranform.forward = takes the direction player is facing and goes forward
-        
+        Vector3 move = (transform.right * x + transform.forward * z) * speed * Time.deltaTime; // transform.right = takes the direction player is facing and goes to the right // tranform.forward = takes the direction player is facing and goes forward
+
         controller.MovePosition(controller.position + move);
 
 
@@ -73,6 +80,7 @@ public class PlayerMovement : MonoBehaviour
             event_TurnRight.Invoke();
         }
 
+
     }
 
     private void OnTriggerEnter(Collider other)
@@ -87,11 +95,12 @@ public class PlayerMovement : MonoBehaviour
         if (other.tag == "TurnLeft")
         {
             Debug.Log("turn left " + initialAngle);
-            triggerTurn = true;
-        } else if (other.tag == "TurnRight")
+            triggerTurnLeft = true;
+        }
+        else if (other.tag == "TurnRight")
         {
             Debug.Log("turn right " + initialAngle);
-            triggerTurn = true;
+            triggerTurnRight = true;
         }
     }
 
@@ -107,12 +116,12 @@ public class PlayerMovement : MonoBehaviour
 
         float diff = headingAngle - targetAngle;
 
-        if ( (diff > 0) && (diff < 15) && (triggerTurn == true))
+        if ((diff > 0) && (diff < 15) && triggerTurnLeft)
         {
-            Debug.Log("Turned Left " +" " + initialAngle + " " + targetAngle + " " + headingAngle + " " + (headingAngle - targetAngle));
-            triggerTurn = false;
+            Debug.Log("Turned Left " + " " + initialAngle + " " + targetAngle + " " + headingAngle + " " + (headingAngle - targetAngle));
+            triggerTurnLeft = false;
         }
-        
+
 
     }
 
@@ -128,13 +137,58 @@ public class PlayerMovement : MonoBehaviour
 
         float diff = targetAngle - headingAngle;
 
-        if ((diff > 0) && (diff < 15) && (triggerTurn == true))
+        if ((diff > 0) && (diff < 15) && triggerTurnRight)
         {
             Debug.Log("Turned Right " + " " + initialAngle + " " + targetAngle + " " + headingAngle + " " + (headingAngle - targetAngle));
-            triggerTurn = false;
+            triggerTurnRight = false;
         }
 
 
     }
 
+    void checkDirection()
+    {
+
+        if (!triggerTurnRight && !triggerTurnLeft)
+        {
+            sendGoStraightMessage();
+        } else if (triggerTurnLeft)
+        {
+            sendTurnLeftMessage();
+        }
+        else if (triggerTurnRight)
+        {
+            sendTurnRightMessage();
+        }
     }
+
+    void sendTurnLeftMessage()
+    {
+        messageDirection.values.Add(2);
+        sendOscMessage(messageDirection);
+    }
+
+    void sendTurnRightMessage()
+    {
+        messageDirection.values.Add(3);
+        sendOscMessage(messageDirection);
+    }
+
+    void sendGoStraightMessage()
+    {
+        messageDirection.values.Add(4);
+        Debug.Log(messageDirection.GetType());
+        sendOscMessage(messageDirection);
+    }
+
+    void sendOscMessage(OscMessage message)
+    {
+        Debug.Log("osc message send " + message);
+        osc.Send(message);
+
+        //reset the osc message so it has only one value all the time
+        messageDirection = new OscMessage();
+        messageDirection.address = "/Direction";
+    }
+
+}

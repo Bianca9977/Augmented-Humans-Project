@@ -7,21 +7,18 @@ import processing.serial.*;
 Serial myPort;
 OscP5 oscP5;
 NetAddress myRemoteLocation;
-OscMessage oscMessage;
 
-int hitWall = 0;
+int hitWall = 0, direction = 0;
 
 
 void setup(){
  size(300,300);
  frameRate(60);
  
-  myPort = new Serial(this, Serial.list()[0], 115200);
+ // myPort = new Serial(this, Serial.list()[0], 115200);
  
  oscP5 = new OscP5(this, 57131);
  myRemoteLocation = new NetAddress("127.0.0.1", 57130);
- 
- oscMessage = new OscMessage("/Button");
  
  
 }
@@ -31,23 +28,30 @@ void draw(){
 
 }
 
-void sendValue(OscMessage message) {
-  println("send message" );
-  //println(message);
-  
-  // Send our data over to Unity!
-  oscP5.send(message, myRemoteLocation);
-
-  oscMessage = new OscMessage("/Button");
-}
-
 void oscEvent(OscMessage theOscMessage) {
   if (theOscMessage.checkAddrPattern("/hitWall") == true) {      
     hitWall = theOscMessage.get(0).intValue(); 
 
     if (hitWall == 1) { 
-       myPort.write('1');         //send a 1
+       //myPort.write('1');         //send a 1
        println("hit wall"); 
+    }
+    
+    return;
+  }
+  
+  if (theOscMessage.checkAddrPattern("/Direction") == true) {      
+    direction = theOscMessage.get(0).intValue();  //2 - turn left; 3 - turn right; 4 - go straight
+
+    if (direction == 2) { 
+      // myPort.write('2');         
+       println("turn left"); 
+    } else if (direction == 3) {
+     //  myPort.write('3');         
+       println("turn right"); 
+    } else if (direction == 4) {
+     //  myPort.write('4');         
+       println("go straight"); 
     }
     
     return;

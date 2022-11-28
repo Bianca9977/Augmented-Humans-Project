@@ -1642,10 +1642,14 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   controller: {fileID: 2065815312}
-  m_MyEvent:
+  event_TurnLeft:
+    m_PersistentCalls:
+      m_Calls: []
+  event_TurnRight:
     m_PersistentCalls:
       m_Calls: []
   speed: 12
+  osc: {fileID: 308791325}
 --- !u!54 &2065815312
 Rigidbody:
   m_ObjectHideFlags: 0
