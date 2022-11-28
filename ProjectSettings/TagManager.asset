@@ -7,6 +7,8 @@ TagManager:
   - Obstacle
   - TurnLeft
   - TurnRight
+  - LastTrigger
+  - Target
   layers:
   - Default
   - TransparentFX

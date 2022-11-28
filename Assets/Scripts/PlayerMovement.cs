@@ -6,12 +6,14 @@ public class PlayerMovement : MonoBehaviour
 {
     public Rigidbody controller;
 
+    public GameObject targetObject;
+
     public UnityEvent event_TurnLeft, event_TurnRight;
 
-    public float speed = 12f;
+    public float speed = 12f, distanceToTarget;
 
     private float headingAngle, initialAngle = 0f;
-    private bool triggerTurnLeft = false, triggerTurnRight = false;
+    private bool triggerTurnLeft = false, triggerTurnRight = false, lastTrigger = false;
 
     public OSC osc;
     OscMessage messageDirection = new OscMessage(); //value 2 - turn left; value 3 - turn right; value 4 - go straight
@@ -79,8 +81,6 @@ public class PlayerMovement : MonoBehaviour
         {
             event_TurnRight.Invoke();
         }
-
-
     }
 
     private void OnTriggerEnter(Collider other)
@@ -101,6 +101,15 @@ public class PlayerMovement : MonoBehaviour
         {
             Debug.Log("turn right " + initialAngle);
             triggerTurnRight = true;
+        }
+    }
+
+    void OnTriggerExit(Collider other)
+    {
+
+        if (other.transform.gameObject.name == "Trigger4")
+        {
+            lastTrigger = true;
         }
     }
 
@@ -160,6 +169,22 @@ public class PlayerMovement : MonoBehaviour
         {
             sendTurnRightMessage();
         }
+
+        if (lastTrigger)
+        {
+            distanceToTarget = Vector3.Distance(targetObject.transform.position, transform.position);
+            Debug.Log("distance to target " + distanceToTarget);
+
+            if ((distanceToTarget < 30f) && (distanceToTarget > 15f))
+            {
+                sendVibrationMedium();
+            }
+            else if (distanceToTarget <= 15f)
+            {
+                sendVibrationHigh();
+            }
+        }
+
     }
 
     void sendTurnLeftMessage()
@@ -177,7 +202,18 @@ public class PlayerMovement : MonoBehaviour
     void sendGoStraightMessage()
     {
         messageDirection.values.Add(4);
-        Debug.Log(messageDirection.GetType());
+        sendOscMessage(messageDirection);
+    }
+
+    void sendVibrationMedium()
+    {
+        messageDirection.values.Add(80);
+        sendOscMessage(messageDirection);
+    }
+
+    void sendVibrationHigh()
+    {
+        messageDirection.values.Add(110);
         sendOscMessage(messageDirection);
     }
 
