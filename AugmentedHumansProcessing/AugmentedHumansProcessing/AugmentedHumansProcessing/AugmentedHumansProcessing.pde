@@ -8,7 +8,7 @@ Serial myPort;
 OscP5 oscP5;
 NetAddress myRemoteLocation;
 
-int hitWall = 0, direction = 0;
+int hitWall = 0, direction = 0, distance = 0;
 
 
 void setup(){
@@ -19,13 +19,10 @@ void setup(){
  
  oscP5 = new OscP5(this, 57131);
  myRemoteLocation = new NetAddress("127.0.0.1", 57130);
- 
- 
 }
 
 void draw(){
   background(0); 
-
 }
 
 void oscEvent(OscMessage theOscMessage) {
@@ -53,6 +50,20 @@ void oscEvent(OscMessage theOscMessage) {
      //  myPort.write('4');         
        println("go straight"); 
     }
+    
+    return;
+  }
+  
+   if (theOscMessage.checkAddrPattern("/Distance") == true) {      
+    distance = theOscMessage.get(0).intValue();  //80 - medium; 110 - high
+
+    if (distance == 80) { 
+      // myPort.write('80');         
+       println("medium"); 
+    } else if (distance == 110) {
+     //  myPort.write('110');         
+       println("high"); 
+    } 
     
     return;
   }

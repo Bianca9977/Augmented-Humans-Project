@@ -17,6 +17,7 @@ public class PlayerMovement : MonoBehaviour
 
     public OSC osc;
     OscMessage messageDirection = new OscMessage(); //value 2 - turn left; value 3 - turn right; value 4 - go straight
+    OscMessage messageDistance = new OscMessage(); //value 2 - turn left; value 3 - turn right; value 4 - go straight
 
     void Start()
     {
@@ -32,6 +33,7 @@ public class PlayerMovement : MonoBehaviour
         event_TurnRight.AddListener(TurnRight);
 
         messageDirection.address = "/Direction";
+        messageDistance.address = "/Distance";
 
         InvokeRepeating("checkDirection", 1.0f, 2.0f);
     }
@@ -207,14 +209,14 @@ public class PlayerMovement : MonoBehaviour
 
     void sendVibrationMedium()
     {
-        messageDirection.values.Add(80);
-        sendOscMessage(messageDirection);
+        messageDistance.values.Add(80);
+        sendOscMessageDistance(messageDistance);
     }
 
     void sendVibrationHigh()
     {
-        messageDirection.values.Add(110);
-        sendOscMessage(messageDirection);
+        messageDistance.values.Add(110);
+        sendOscMessageDistance(messageDistance);
     }
 
     void sendOscMessage(OscMessage message)
@@ -225,6 +227,16 @@ public class PlayerMovement : MonoBehaviour
         //reset the osc message so it has only one value all the time
         messageDirection = new OscMessage();
         messageDirection.address = "/Direction";
+    }
+
+    void sendOscMessageDistance(OscMessage message)
+    {
+        Debug.Log("osc message distance send " + message);
+        osc.Send(message);
+
+        //reset the osc message so it has only one value all the time
+        messageDistance = new OscMessage();
+        messageDistance.address = "/Distance";
     }
 
 }
